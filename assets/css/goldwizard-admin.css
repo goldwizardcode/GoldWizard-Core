@@ -1,0 +1,116 @@
+/**
+ * GoldWizard Core - Admin CSS
+ */
+
+/* Options de personnalisation */
+.options_group h3 {
+    margin-top: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    color: #23282d;
+}
+
+.options_group h4 {
+    margin-top: 5px;
+    margin-bottom: 10px;
+    color: #23282d;
+}
+
+/* Champs textuels personnalisés */
+.personnalisation-text-fields {
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.personnalisation-text-field {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.personnalisation-text-field h4 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0;
+}
+
+.personnalisation-text-field h4 .remove_text_field {
+    color: #a00;
+    text-decoration: none;
+}
+
+.personnalisation-text-field h4 .remove_text_field:hover {
+    color: #dc3232;
+}
+
+.personnalisation-text-field p {
+    margin-bottom: 10px;
+}
+
+.personnalisation-text-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.personnalisation-text-field input[type="text"],
+.personnalisation-text-field select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+/* Bouton d'ajout de champ */
+.add_text_field {
+    opacity: 1 !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    background-color: #2271b1 !important;
+    border-color: #2271b1 !important;
+    color: #fff !important;
+}
+
+.add_text_field:hover {
+    background-color: #135e96 !important;
+    border-color: #135e96 !important;
+}
+
+/* S'assurer que le conteneur des champs textuels est toujours visible quand nécessaire */
+.personnalisation-text-fields.show {
+    display: block !important;
+}
+
+.remove-text-field {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    color: #a00;
+    font-weight: bold;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0 5px;
+}
+
+.remove-text-field:hover {
+    color: #dc3232;
+}
+
+/* Style pour les options de personnalisation */
+.woocommerce_options_panel label[for="_enable_image_upload"],
+.woocommerce_options_panel label[for="_enable_text_fields"] {
+    font-weight: 600;
+}
+
+/* Notification de succès */
+.goldwizard-success-notice {
+    background-color: #f7f9e1;
+    border-left-color: #EBDFCE;
+}

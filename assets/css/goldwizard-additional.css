@@ -1,0 +1,137 @@
+/* Style pour les vues rapides */
+.quick-view-content .goldwizard-variation-price-display,
+.quickview-content .goldwizard-variation-price-display,
+.dwc-quick-view-content .goldwizard-variation-price-display,
+[class*="quickview"] .goldwizard-variation-price-display,
+[class*="quick-view"] .goldwizard-variation-price-display {
+    display: block !important;
+    text-align: left !important;
+    margin-bottom: 0px !important;
+}
+
+/* Style pour les blocs projet */
+.bloc-projet .goldwizard-variation-price-display,
+[class*="bloc-projet"] .goldwizard-variation-price-display,
+.bloc-projet .goldwizard-reduction,
+[class*="bloc-projet"] .goldwizard-reduction {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-weight: 300 !important;
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+}
+
+/* Bouton Ajouter au panier en full width */
+.single_add_to_cart_button,
+button.single_add_to_cart_button,
+.woocommerce .single_add_to_cart_button,
+.woocommerce-page .single_add_to_cart_button,
+.breakdance-woocommerce .single_add_to_cart_button,
+.breakdance .single_add_to_cart_button,
+[class*="quickview"] .single_add_to_cart_button,
+[class*="quick-view"] .single_add_to_cart_button,
+.quick-view-content .single_add_to_cart_button,
+.quickview-content .single_add_to_cart_button,
+.dwc-quick-view-content .single_add_to_cart_button {
+    width: 100% !important;
+    display: block !important;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+    text-align: center !important;
+}
+
+/* Styles pour l'affichage des prix partout sur le site */
+.goldwizard-variation-price-display,
+.woocommerce .goldwizard-variation-price-display,
+.woocommerce-page .goldwizard-variation-price-display,
+.wc-block-grid__product .goldwizard-variation-price-display,
+[class*="woocommerce"] .goldwizard-variation-price-display,
+.goldwizard-variation-price-display[data-shortcode="true"] {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-weight: 300 !important;
+    line-height: 1.2 !important;
+    margin: 5px 0 !important;
+    background-color: transparent !important;
+    padding: 5px !important;
+    border-radius: 0 !important;
+}
+
+/* Style pour le prix régulier (barré) */
+.goldwizard-variation-price-display .regular-price,
+.woocommerce .goldwizard-variation-price-display .regular-price,
+.woocommerce-page .goldwizard-variation-price-display .regular-price,
+[class*="woocommerce"] .goldwizard-variation-price-display .regular-price {
+    text-decoration: line-through !important;
+    color: #777 !important;
+    font-size: 16px !important;
+    margin-right: 10px !important;
+}
+
+/* Style pour le prix soldé */
+.goldwizard-variation-price-display .sale-price,
+.woocommerce .goldwizard-variation-price-display .sale-price,
+.woocommerce-page .goldwizard-variation-price-display .sale-price,
+[class*="woocommerce"] .goldwizard-variation-price-display .sale-price {
+    font-weight: bold !important;
+    color: #0E1B4D !important;
+    font-size: 16px !important;
+    margin-right: 10px !important;
+}
+
+/* Style pour le texte d'économie */
+.goldwizard-variation-price-display .economisez,
+.woocommerce .goldwizard-variation-price-display .economisez,
+.woocommerce-page .goldwizard-variation-price-display .economisez,
+[class*="woocommerce"] .goldwizard-variation-price-display .economisez {
+    color: #D9534F !important;
+    font-size: 14px !important;
+    margin-left: 5px !important;
+}
+
+/* Style pour les frais de livraison */
+.goldwizard-variation-price-display .frais-livraison,
+.woocommerce .goldwizard-variation-price-display .frais-livraison,
+.woocommerce-page .goldwizard-variation-price-display .frais-livraison,
+[class*="woocommerce"] .goldwizard-variation-price-display .frais-livraison {
+    color: #5CB85C !important;
+    font-size: 14px !important;
+    display: block !important;
+    width: 100% !important;
+    margin-top: 5px !important;
+    margin-left: 0 !important;
+}
+
+/* Styles pour les boutons d'achat rapide */
+.btn-achat-rapide,
+.dwc-quick-view-btn,
+.quick-view-button,
+[data-quick-view],
+.quickview-button {
+    display: inline-block;
+    background-color: #0E1B4D;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-top: 10px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btn-achat-rapide:hover,
+.dwc-quick-view-btn:hover,
+.quick-view-button:hover,
+[data-quick-view]:hover,
+.quickview-button:hover {
+    background-color: #0a1435;
+    color: white;
+    text-decoration: none;
+}
+
+/* Cacher les frais de livraison dans les blocs projet */
+.bloc-projet .goldwizard-variation-price-display .frais-livraison,
+[class*="bloc-projet"] .goldwizard-variation-price-display .frais-livraison {
+    display: none !important;
+}

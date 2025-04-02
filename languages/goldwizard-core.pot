@@ -1,0 +1,181 @@
+# Copyright (C) 2025 GoldWizard
+# This file is distributed under the same license as the GoldWizard Core plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: GoldWizard Core 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/goldwizard-core\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-03-20T23:30:00+01:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.7.0\n"
+"X-Domain: goldwizard-core\n"
+
+#. Plugin Name of the plugin
+msgid "GoldWizard Core"
+msgstr ""
+
+#. Description of the plugin
+msgid "Extension professionnelle qui ajoute des fonctionnalités de personnalisation et de réduction pour WooCommerce."
+msgstr ""
+
+#. Author of the plugin
+msgid "GoldWizard"
+msgstr ""
+
+#: goldwizard-core.php:79
+msgid "GoldWizard Core nécessite que WooCommerce soit installé et activé."
+msgstr ""
+
+#: goldwizard-core.php:127
+msgid "Erreur lors de l'upload. Veuillez réessayer."
+msgstr ""
+
+#: goldwizard-core.php:128
+msgid "Le fichier est trop volumineux."
+msgstr ""
+
+#: goldwizard-core.php:129
+msgid "Type de fichier non autorisé. Utilisez JPG, PNG ou GIF."
+msgstr ""
+
+#: goldwizard-core.php:130
+msgid "Supprimer"
+msgstr ""
+
+#: goldwizard-core.php:131
+msgid "Sélectionner des photos"
+msgstr ""
+
+#: goldwizard-core.php:132
+msgid "Téléchargement en cours..."
+msgstr ""
+
+#: goldwizard-core.php:159
+msgid "Paramètres"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:89
+msgid "Options de personnalisation"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:93
+msgid "Activer l'upload d'images"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:94
+msgid "Cochez cette case pour permettre aux clients d'uploader des images pour personnaliser ce produit."
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:99
+msgid "Activer les champs textuels"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:100
+msgid "Cochez cette case pour permettre aux clients de saisir du texte pour personnaliser ce produit."
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:126
+msgid "Champs textuels personnalisés"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:139
+msgid "Ajouter un champ"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:159
+msgid "Champ"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:159
+msgid "Supprimer"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:161
+msgid "Label"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:165
+msgid "Type"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:167
+msgid "Texte court"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:168
+msgid "Texte long"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:172
+msgid "Placeholder"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:176
+msgid "Description"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:182
+msgid "Obligatoire"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:278
+msgid "Personnalisation"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:282
+msgid "Vos photos"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:286
+msgid "Sélectionner des photos"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:287
+msgid "ou glissez-déposez vos photos ici"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:329
+msgid "Veuillez uploader au moins une image pour personnaliser ce produit."
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:340
+msgid "Le champ \"%s\" est obligatoire."
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:380
+msgid "Images personnalisées"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:381
+msgid "%d image"
+msgid_plural "%d images"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-goldwizard-personnalisation.php:425
+msgid "Images personnalisées"
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:453
+msgid "Erreur de sécurité. Veuillez rafraîchir la page et réessayer."
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:458
+msgid "Aucun fichier n'a été uploadé."
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:463
+msgid "Type de fichier non autorisé. Utilisez JPG, PNG ou GIF."
+msgstr ""
+
+#: includes/class-goldwizard-personnalisation.php:468
+msgid "Le fichier est trop volumineux."
+msgstr ""
+
+#: includes/class-goldwizard-reduction.php:107
+msgid "Économisez %d%%"
+msgstr ""

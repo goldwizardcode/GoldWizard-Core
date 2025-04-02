@@ -1,0 +1,173 @@
+/**
+ * GoldWizard Reduction CSS
+ */
+
+/* Style de base pour l'affichage de la réduction */
+.goldwizard-reduction,
+span.goldwizard-reduction,
+div.goldwizard-reduction,
+p.goldwizard-reduction,
+.woocommerce .goldwizard-reduction,
+.woocommerce-page .goldwizard-reduction,
+[class*="woocommerce"] .goldwizard-reduction {
+    display: inline-block !important;
+    color: #e2401c !important; /* Rouge vif avec !important pour forcer l'application */
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-weight: 300 !important; /* Police fine */
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    margin: 5px 0 !important;
+    position: relative !important;
+    z-index: 5 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    padding: 0 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    text-decoration: none !important;
+    border-radius: 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    transition: none !important;
+    max-width: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    float: none !important;
+    clear: none !important;
+}
+
+/* Styles pour différents emplacements */
+/* Sur les grilles de produits */
+.products .product .goldwizard-reduction,
+.wc-block-grid__products .wc-block-grid__product .goldwizard-reduction,
+.woocommerce ul.products li.product .goldwizard-reduction,
+.woocommerce-page ul.products li.product .goldwizard-reduction,
+[class*="products"] [class*="product"] .goldwizard-reduction {
+    position: absolute !important;
+    top: 10px !important;
+    left: 10px !important;
+    z-index: 9 !important;
+    color: #e2401c !important;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-weight: 300 !important;
+}
+
+/* Dans la vue rapide */
+.quick-view-content .goldwizard-reduction,
+.quickview-wrapper .goldwizard-reduction,
+.dwc-quick-view .goldwizard-reduction,
+.modal-quickview .goldwizard-reduction,
+.quick-view--active .goldwizard-reduction,
+div[class*="quickview"] .goldwizard-reduction,
+[class*="quick-view"] .goldwizard-reduction,
+.breakdance-woocommerce [class*="quick-view"] .goldwizard-reduction {
+    display: inline-block !important;
+    margin-bottom: 15px !important;
+    font-size: 14px !important;
+    font-weight: 300 !important;
+    color: #e2401c !important;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+/* Sur la page produit */
+.single-product .goldwizard-reduction,
+.woocommerce div.product .goldwizard-reduction,
+.woocommerce-page div.product .goldwizard-reduction,
+.product-template-default .goldwizard-reduction,
+.breakdance-woocommerce div.product .goldwizard-reduction {
+    display: inline-block !important;
+    margin-bottom: 15px !important;
+    font-size: 16px !important;
+    font-weight: 300 !important;
+    color: #e2401c !important;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+/* Dans le panier et checkout */
+.woocommerce-cart .goldwizard-reduction,
+.woocommerce-checkout .goldwizard-reduction,
+.cart_item .goldwizard-reduction,
+.checkout .goldwizard-reduction,
+.woocommerce-cart-form .goldwizard-reduction,
+.cart-collaterals .goldwizard-reduction,
+.breakdance-woocommerce .cart .goldwizard-reduction,
+.breakdance-woocommerce .checkout .goldwizard-reduction {
+    display: inline-block !important;
+    font-size: 12px !important;
+    margin: 0 !important;
+    color: #e2401c !important;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+/* Styles pour l'affichage des prix des variations */
+.goldwizard-variation-price-display {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-weight: 300 !important;
+    line-height: 1.2 !important;
+    background-color: transparent !important;
+    padding: 0 !important;
+    margin: 5px 0 !important;
+}
+
+/* Styles pour les éléments à l'intérieur de l'affichage des prix */
+.goldwizard-variation-price-display .regular-price {
+    text-decoration: line-through !important;
+    color: #777 !important;
+    font-size: 16px !important;
+    margin-right: 10px !important;
+}
+
+.goldwizard-variation-price-display .sale-price {
+    font-weight: bold !important;
+    color: #0E1B4D !important;
+    font-size: 16px !important;
+    margin-right: 10px !important;
+}
+
+.goldwizard-variation-price-display .economisez {
+    color: #D9534F !important;
+    font-size: 14px !important;
+}
+
+.goldwizard-variation-price-display .frais-livraison {
+    color: #5CB85C !important;
+    font-size: 14px !important;
+    display: block !important;
+    width: 100% !important;
+    margin-top: 5px !important;
+}
+
+/* Cacher les frais de livraison dans les blocs projet */
+.bloc-projet .goldwizard-variation-price-display .frais-livraison,
+[class*="bloc-projet"] .goldwizard-variation-price-display .frais-livraison {
+    display: none !important;
+}
+
+/* Cacher le prix WooCommerce par défaut sur les pages produit */
+.woocommerce div.product p.price,
+.woocommerce div.product span.price,
+.breakdance-woocommerce div.product p.price,
+.breakdance-woocommerce div.product span.price,
+.woocommerce-variation-price {
+    display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .goldwizard-reduction {
+        font-size: 12px !important;
+    }
+    
+    .single-product .goldwizard-reduction,
+    .woocommerce div.product .goldwizard-reduction,
+    .woocommerce-page div.product .goldwizard-reduction,
+    .product-template-default .goldwizard-reduction {
+        font-size: 14px !important;
+    }
+}

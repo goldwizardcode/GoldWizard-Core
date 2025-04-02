@@ -1,0 +1,371 @@
+/**
+ * GoldWizard Personnalisation CSS
+ */
+
+/* Container principal */
+.goldwizard-personnalisation-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.goldwizard-personnalisation-container h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.4em;
+    color: #333;
+    border-bottom: 2px solid #e6e6e6;
+    padding-bottom: 10px;
+}
+
+/* Zone de dépôt d'images */
+.goldwizard-personnalisation-image-upload {
+    margin-bottom: 25px;
+}
+
+.goldwizard-personnalisation-image-upload label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #333;
+}
+
+.goldwizard-personnalisation-image-upload .required {
+    color: #e2401c;
+}
+
+.goldwizard-personnalisation-dropzone {
+    border: 2px dashed #ccc;
+    border-radius: 6px;
+    padding: 30px;
+    text-align: center;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.goldwizard-personnalisation-dropzone:hover,
+.goldwizard-personnalisation-dropzone.dragover {
+    border-color: #EBDFCE;
+    background-color: #fffbeb;
+}
+
+.goldwizard-personnalisation-dropzone-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Style du bouton de sélection des photos */
+.goldwizard-personnalisation-select-button,
+button.goldwizard-personnalisation-select-button,
+.woocommerce .goldwizard-personnalisation-select-button,
+.woocommerce-page .goldwizard-personnalisation-select-button,
+.breakdance-woocommerce .goldwizard-personnalisation-select-button,
+.breakdance .goldwizard-personnalisation-select-button {
+    background-color: #EBDFCE !important;
+    color: #333 !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 12px 24px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s ease !important;
+    margin-bottom: 15px !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+    text-transform: none !important;
+    text-decoration: none !important;
+    line-height: 1.5 !important;
+    display: inline-block !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+}
+
+.goldwizard-personnalisation-select-button:hover,
+button.goldwizard-personnalisation-select-button:hover,
+.woocommerce .goldwizard-personnalisation-select-button:hover,
+.woocommerce-page .goldwizard-personnalisation-select-button:hover,
+.breakdance-woocommerce .goldwizard-personnalisation-select-button:hover,
+.breakdance .goldwizard-personnalisation-select-button:hover {
+    background-color: #e0d0b8 !important;
+    color: #333 !important;
+}
+
+.goldwizard-personnalisation-dropzone-text {
+    color: #777;
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Prévisualisation des images */
+.goldwizard-personnalisation-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.goldwizard-personnalisation-image-preview {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.goldwizard-personnalisation-image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.goldwizard-personnalisation-image-preview .remove-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #e2401c;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.goldwizard-personnalisation-image-preview .remove-image:hover {
+    background-color: #fff;
+    color: #b81c1c;
+}
+
+/* Champs de texte */
+.goldwizard-personnalisation-text-fields {
+    margin-top: 25px;
+}
+
+.goldwizard-personnalisation-text-field {
+    margin-bottom: 20px;
+}
+
+.goldwizard-personnalisation-text-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.goldwizard-personnalisation-text-field input[type="text"],
+.goldwizard-personnalisation-text-field textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.goldwizard-personnalisation-text-field input:focus,
+.goldwizard-personnalisation-text-field textarea:focus {
+    border-color: #EBDFCE;
+    outline: none;
+    box-shadow: 0 0 0 1px #EBDFCE;
+}
+
+.goldwizard-personnalisation-text-field textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.goldwizard-personnalisation-text-field .description {
+    font-size: 13px;
+    color: #777;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* Indicateur de chargement */
+.goldwizard-personnalisation-loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(235, 223, 206, 0.3);
+    border-radius: 50%;
+    border-top-color: #EBDFCE;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Messages d'erreur */
+.goldwizard-personnalisation-error {
+    color: #e2401c;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+/* Réduction */
+.goldwizard-reduction {
+    display: inline-block;
+    background-color: #EBDFCE;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-family: Helvetica, Arial, sans-serif;
+    margin-bottom: 15px;
+}
+
+/* Styles spécifiques pour la vue rapide */
+.dwc-quick-view .goldwizard-personnalisation-container,
+.quick-view-content .goldwizard-personnalisation-container,
+.quickview-wrapper .goldwizard-personnalisation-container,
+.modal-quickview .goldwizard-personnalisation-container,
+.quick-view--active .goldwizard-personnalisation-container {
+    margin: 15px 0;
+    padding: 15px;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.dwc-quick-view .goldwizard-personnalisation-container h3,
+.quick-view-content .goldwizard-personnalisation-container h3,
+.quickview-wrapper .goldwizard-personnalisation-container h3,
+.modal-quickview .goldwizard-personnalisation-container h3,
+.quick-view--active .goldwizard-personnalisation-container h3 {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+}
+
+.dwc-quick-view .goldwizard-personnalisation-dropzone,
+.quick-view-content .goldwizard-personnalisation-dropzone,
+.quickview-wrapper .goldwizard-personnalisation-dropzone,
+.modal-quickview .goldwizard-personnalisation-dropzone,
+.quick-view--active .goldwizard-personnalisation-dropzone {
+    padding: 20px;
+}
+
+.dwc-quick-view .goldwizard-personnalisation-text-field,
+.quick-view-content .goldwizard-personnalisation-text-field,
+.quickview-wrapper .goldwizard-personnalisation-text-field,
+.modal-quickview .goldwizard-personnalisation-text-field,
+.quick-view--active .goldwizard-personnalisation-text-field {
+    margin-bottom: 10px;
+}
+
+.dwc-quick-view .goldwizard-personnalisation-text-field input,
+.quick-view-content .goldwizard-personnalisation-text-field input,
+.quickview-wrapper .goldwizard-personnalisation-text-field input,
+.modal-quickview .goldwizard-personnalisation-text-field input,
+.quick-view--active .goldwizard-personnalisation-text-field input {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Assurer la visibilité dans tous les contextes */
+body.woocommerce-page .goldwizard-personnalisation-container,
+body.single-product .goldwizard-personnalisation-container,
+body.archive .goldwizard-personnalisation-container {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .goldwizard-personnalisation-container {
+        padding: 15px;
+    }
+    
+    .goldwizard-personnalisation-dropzone {
+        padding: 20px;
+    }
+    
+    .goldwizard-personnalisation-select-button {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}
+
+/* Ajustements pour les petits écrans et vues rapides */
+@media (max-width: 768px) {
+    .dwc-quick-view .goldwizard-personnalisation-container,
+    .quick-view-content .goldwizard-personnalisation-container,
+    .quickview-wrapper .goldwizard-personnalisation-container,
+    .modal-quickview .goldwizard-personnalisation-container,
+    .quick-view--active .goldwizard-personnalisation-container {
+        padding: 10px;
+    }
+    
+    .dwc-quick-view .goldwizard-personnalisation-dropzone,
+    .quick-view-content .goldwizard-personnalisation-dropzone,
+    .quickview-wrapper .goldwizard-personnalisation-dropzone,
+    .modal-quickview .goldwizard-personnalisation-dropzone,
+    .quick-view--active .goldwizard-personnalisation-dropzone {
+        padding: 15px;
+    }
+    
+    .dwc-quick-view .goldwizard-personnalisation-text-field,
+    .quick-view-content .goldwizard-personnalisation-text-field,
+    .quickview-wrapper .goldwizard-personnalisation-text-field,
+    .modal-quickview .goldwizard-personnalisation-text-field,
+    .quick-view--active .goldwizard-personnalisation-text-field {
+        margin-bottom: 5px;
+    }
+}
+
+/* Animation de rebondissement pour le bouton Ajouter au panier */
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.single_add_to_cart_button,
+button.single_add_to_cart_button,
+.woocommerce .single_add_to_cart_button,
+.woocommerce-page .single_add_to_cart_button,
+.breakdance-woocommerce .single_add_to_cart_button,
+.breakdance .single_add_to_cart_button {
+    animation: bounce 2s ease-in-out infinite !important;
+    transform-origin: center bottom !important;
+    transition: all 0.3s ease !important;
+}
+
+.single_add_to_cart_button:hover,
+button.single_add_to_cart_button:hover,
+.woocommerce .single_add_to_cart_button:hover,
+.woocommerce-page .single_add_to_cart_button:hover,
+.breakdance-woocommerce .single_add_to_cart_button:hover,
+.breakdance .single_add_to_cart_button:hover {
+    animation-play-state: paused !important;
+    transform: scale(1.05) !important;
+}
+
+/* Ajout du style pour le formulaire du panier en colonne pour Breakdance */
+.breakdance-woocommerce div.product form.cart {
+    flex-direction: column !important;
+}
