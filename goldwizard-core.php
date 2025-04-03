@@ -195,12 +195,17 @@ class GoldWizard_Core {
         wp_enqueue_style('goldwizard-personnalisation', GOLDWIZARD_CORE_URL . 'assets/css/goldwizard-personnalisation.css', array(), GOLDWIZARD_CORE_VERSION . '.' . time(), 'all');
         wp_enqueue_style('formulaire-reservation', GOLDWIZARD_CORE_URL . 'assets/css/formulaire-reservation.css', array(), GOLDWIZARD_CORE_VERSION . '.' . time(), 'all');
         wp_enqueue_style('goldwizard-additional', GOLDWIZARD_CORE_URL . 'assets/css/goldwizard-additional.css', array(), GOLDWIZARD_CORE_VERSION . '.' . time(), 'all');
+        wp_enqueue_style('goldwizard-faq-style', GOLDWIZARD_CORE_URL . 'assets/css/goldwizard-faq.css', array(), GOLDWIZARD_CORE_VERSION . '.' . time(), 'all');
         
         // Ajouter un hook pour charger les styles avec une priorité très élevée
         add_action('wp_head', array($this, 'add_inline_styles'), 999);
         
         // Enregistrer les scripts
         wp_enqueue_script('goldwizard-variation-price', GOLDWIZARD_CORE_URL . 'assets/js/goldwizard-variation-price.js', array('jquery'), GOLDWIZARD_CORE_VERSION . '.' . time(), true);
+        wp_enqueue_script('goldwizard-faq-script', GOLDWIZARD_CORE_URL . 'assets/js/goldwizard-faq.js', array('jquery'), GOLDWIZARD_CORE_VERSION . '.' . time(), true);
+        
+        // Ajouter un hook pour s'assurer que le script FAQ est correctement initialisé
+        add_action('wp_footer', array($this, 'ensure_faq_initialization'), 999);
         
         // N'enregistrer les scripts de personnalisation que sur les pages produit et quickview
         if (is_product() || isset($_REQUEST['wc-ajax']) || isset($_REQUEST['product_id']) || isset($_REQUEST['quickview']) || isset($_REQUEST['breakdance']) || isset($_REQUEST['quick-view'])) {
@@ -251,17 +256,53 @@ class GoldWizard_Core {
             .quick-view-button:hover,
             [data-quick-view]:hover,
             .quickview-button:hover {
-                background-color: #0a1435;
+                background-color: #1A2C5E;
                 color: white;
-                text-decoration: none;
-            }
-            
-            /* Cacher les frais de livraison dans les blocs projet */
-            .bloc-projet .goldwizard-variation-price-display .frais-livraison,
-            [class*="bloc-projet"] .goldwizard-variation-price-display .frais-livraison {
-                display: none !important;
             }
         </style>
+        <?php
+    }
+    
+    /**
+     * S'assurer que le script FAQ est correctement initialisé
+     * Cette fonction ajoute un script d'initialisation dans le footer
+     */
+    public function ensure_faq_initialization() {
+        ?>
+        <script type="text/javascript">
+            (function() {
+                // Vérifier si jQuery est disponible
+                if (typeof jQuery === 'undefined') {
+                    console.error('GoldWizard FAQ: jQuery n\'est pas disponible dans le footer.');
+                    return;
+                }
+                
+                // Vérifier si la fonction de réinitialisation existe
+                if (typeof window.goldwizardResetFAQ === 'function') {
+                    // Attendre que le DOM soit complètement chargé
+                    jQuery(document).ready(function() {
+                        // Attendre un peu pour s'assurer que tous les scripts sont chargés
+                        setTimeout(function() {
+                            // Vérifier si des conteneurs FAQ existent
+                            var faqContainers = jQuery('.goldwizard-faq-container');
+                            if (faqContainers.length > 0) {
+                                console.log('GoldWizard FAQ: ' + faqContainers.length + ' conteneur(s) FAQ trouvé(s) - Initialisation forcée');
+                                window.goldwizardResetFAQ();
+                            }
+                        }, 500);
+                    });
+                    
+                    // Écouter les événements de chargement de page dynamique
+                    jQuery(document).on('breakdance_loaded ready ajaxComplete', function() {
+                        setTimeout(function() {
+                            if (typeof window.goldwizardResetFAQ === 'function') {
+                                window.goldwizardResetFAQ();
+                            }
+                        }, 500);
+                    });
+                }
+            })();
+        </script>
         <?php
     }
 

@@ -1,0 +1,170 @@
+/**
+ * GoldWizard FAQ - Styles pour les sections FAQ
+ */
+
+/* Conteneur principal */
+.goldwizard-faq-container {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Élément FAQ */
+.goldwizard-faq-item {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow: visible;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  transition: none;
+}
+
+/* Question */
+.goldwizard-faq-question {
+  cursor: pointer;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  transition: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: none;
+}
+
+/* Suppression de l'ombre */
+.goldwizard-faq-question:hover,
+.bde-heading:hover {
+  box-shadow: none;
+}
+
+/* Suppression de la couleur bleue au clic */
+.goldwizard-faq-active .goldwizard-faq-question {
+  color: inherit;
+}
+
+/* Réponse */
+.goldwizard-faq-answer {
+  overflow: hidden;
+  transition: height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  height: 0 !important;
+  opacity: 0;
+  display: block;
+  visibility: visible;
+}
+
+/* Réponse active */
+.goldwizard-faq-active + .goldwizard-faq-answer,
+.goldwizard-faq-active .goldwizard-faq-answer {
+  height: auto !important;
+  opacity: 1;
+}
+
+/* Styles spécifiques pour Breakdance */
+.bde-div.goldwizard-faq-item {
+  margin: 0;
+  padding: 0;
+}
+
+/* Icône dans Breakdance */
+.goldwizard-faq-item .bde-icon {
+  transition: transform 0.3s ease;
+}
+
+/* Rotation de l'icône quand actif */
+.goldwizard-faq-active .bde-icon {
+  transform: rotate(180deg);
+}
+
+/* Compatibilité avec différentes structures */
+.goldwizard-faq-container > div > .goldwizard-faq-answer {
+  height: 0 !important;
+  opacity: 0;
+  overflow: hidden;
+  transition: height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.goldwizard-faq-container > div.goldwizard-faq-active + .goldwizard-faq-answer {
+  height: auto !important;
+  opacity: 1;
+}
+
+/* Breakdance spécifique */
+.bde-div {
+  display: flex;
+  align-items: center;
+  padding-right: 0;
+}
+
+.bde-icon {
+  margin-left: 10px;
+  transition: transform 0.3s ease;
+}
+
+.goldwizard-faq-active .bde-icon {
+  transform: rotate(180deg);
+}
+
+.bde-heading {
+  flex-grow: 1;
+  margin: 0;
+}
+
+/* Indicateur + / - pour les éléments non-Breakdance */
+.goldwizard-faq-question:not(.bde-heading):after {
+  content: '+';
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  transition: transform 0.3s ease;
+}
+
+.goldwizard-faq-active .goldwizard-faq-question:not(.bde-heading):after {
+  content: '-';
+}
+
+/* Contenu interne de la réponse */
+.goldwizard-faq-answer > p,
+.goldwizard-faq-answer > div,
+.bde-text {
+  padding: 0;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Correction pour la structure spécifique de Breakdance */
+.goldwizard-faq-container .bde-div .bde-div {
+  padding-right: 0;
+}
+
+.goldwizard-faq-container .bde-div .bde-div .bde-heading {
+  padding: 0;
+  margin: 0;
+}
+
+.goldwizard-faq-container .bde-div + .bde-div {
+  margin-top: 0;
+}
+
+.goldwizard-faq-container .bde-div .goldwizard-faq-answer-inner {
+  padding: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .goldwizard-faq-question,
+  .goldwizard-faq-answer > p,
+  .goldwizard-faq-answer > div,
+  .bde-text {
+    padding: 0;
+  }
+  
+  .goldwizard-faq-question:after {
+    right: 10px;
+  }
+}

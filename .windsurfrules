@@ -1,0 +1,98 @@
+# Structure du projet
+structure:
+  goldwizardcode-goldwizard-core:
+    fichiers:
+      - README.md
+      - debug.php
+      - formulaire-reservation.html
+      - goldwizard-core.php
+      - index.php
+    dossiers:
+      assets:
+        fichiers: [index.php]
+        sous-dossiers:
+          css:
+            fichiers:
+              - formulaire-reservation.css
+              - goldwizard-additional.css
+              - goldwizard-admin.css
+              - goldwizard-personnalisation.css
+              - goldwizard-reduction.css
+              - index.php
+          js:
+            fichiers:
+              - goldwizard-admin.js
+              - goldwizard-lightbox.js
+              - goldwizard-personnalisation.js
+              - goldwizard-product-image.js
+              - goldwizard-variation-price.js
+              - index.php
+      includes:
+        fichiers:
+          - class-goldwizard-admin-customizer.php
+          - class-goldwizard-personnalisation.php
+          - class-goldwizard-product-image.php
+          - class-goldwizard-reduction.php
+          - index.php
+      languages:
+        fichiers:
+          - goldwizard-core.pot
+          - index.php
+
+# Conventions de codage
+conventions:
+  indentation: '2 espaces'
+  guillemets: doubles
+  point_virgule: absent
+  ordre_imports: 'bibliothèques standard, bibliothèques tierces, modules internes'
+
+# Nommage des fichiers et des classes
+naming:
+  fichiers:
+    php: 'class-{nom-classe}.php'
+    css: '{nom-style}.css'
+    js: '{nom-script}.js'
+  classes:
+    format: PascalCase
+  variables:
+    format: camelCase
+  constantes:
+    format: UPPER_CASE
+
+# Directives spécifiques pour Windsurf AI
+windsurf:
+  directives:
+    - "Toujours vérifier si un fichier existe avant de le créer."
+    - "Si un fichier existe, il doit être mis à jour au lieu d'en créer un nouveau."
+    - "Respecter strictement la structure des dossiers définie ci-dessus."
+    - "Ne jamais créer un fichier dont le nom est similaire à un fichier existant."
+    - "Si une mise à jour est requise, documenter les changements dans un journal de modifications."
+
+# Journal des modifications automatique
+changelog:
+  fichier: "CHANGELOG.md"
+  format:
+    - "Date et heure de modification"
+    - "Nom du fichier modifié"
+    - "Description des changements"
+  règles:
+    - "Toute modification d'un fichier existant doit être enregistrée ici."
+    - "Les ajouts de nouvelles fonctions doivent être documentés."
+
+# Validation avant sauvegarde
+validation:
+  - "Avant de sauvegarder un fichier, vérifier que son contenu est valide et structuré correctement."
+  - "Si un fichier CSS/JS/PHP contient des erreurs, générer un avertissement au lieu d'écraser l'existant."
+  - "Vérifier que les imports et les dépendances sont correctement référencés."
+
+# Relations entre les fichiers
+relations:
+  goldwizard-core.php:
+    dépend de:
+      - includes/class-goldwizard-admin-customizer.php
+      - includes/class-goldwizard-personnalisation.php
+      - includes/class-goldwizard-product-image.php
+      - includes/class-goldwizard-reduction.php
+  formulaire-reservation.html:
+    dépend de:
+      - assets/css/formulaire-reservation.css
