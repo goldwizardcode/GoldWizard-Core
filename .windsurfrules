@@ -3,10 +3,13 @@ structure:
   goldwizardcode-goldwizard-core:
     fichiers:
       - README.md
+      - debug-scripts.php
       - debug.php
+      - exemple-faq.html
       - formulaire-reservation.html
       - goldwizard-core.php
       - index.php
+      - .windsurfrules
     dossiers:
       assets:
         fichiers: [index.php]
@@ -16,12 +19,14 @@ structure:
               - formulaire-reservation.css
               - goldwizard-additional.css
               - goldwizard-admin.css
+              - goldwizard-faq.css
               - goldwizard-personnalisation.css
               - goldwizard-reduction.css
               - index.php
           js:
             fichiers:
               - goldwizard-admin.js
+              - goldwizard-faq.js
               - goldwizard-lightbox.js
               - goldwizard-personnalisation.js
               - goldwizard-product-image.js
@@ -58,6 +63,29 @@ naming:
     format: camelCase
   constantes:
     format: UPPER_CASE
+
+# Éviter les erreurs de syntaxe
+syntax:
+  - "Toujours vérifier la syntaxe PHP avant de sauvegarder un fichier."
+  - "S'assurer que chaque instruction se termine correctement par une virgule ou un point-virgule selon le contexte."
+  - "Utiliser un analyseur syntaxique PHP pour détecter les erreurs avant exécution."
+  - "Afficher un avertissement avant d'enregistrer un fichier contenant une erreur de syntaxe."
+
+# Vérification automatique des erreurs
+validation:
+  - "Exécuter 'php -l {nom_du_fichier}' pour vérifier la syntaxe avant validation."
+  - "Ne pas générer de code avec des erreurs de syntaxe."
+  - "S'assurer que toutes les variables et fonctions sont déclarées avant utilisation."
+  - "Vérifier qu'aucun mot-clé réservé n'est mal utilisé (ex: 'affichage' sans guillemets)."
+
+# Gestion des fichiers de debug
+debug:
+  fichier_unique: "debug.log"
+  règles:
+    - "Tous les logs de debug doivent être écrits dans 'debug.log' au lieu de créer plusieurs fichiers."
+    - "Ne jamais générer plusieurs fichiers de debug simultanément."
+    - "Si 'debug.log' existe déjà, ajouter les nouvelles entrées à la suite au lieu de créer un nouveau fichier."
+    - "Utiliser un format de log structuré avec horodatage pour chaque entrée."
 
 # Directives spécifiques pour Windsurf AI
 windsurf:
@@ -96,3 +124,7 @@ relations:
   formulaire-reservation.html:
     dépend de:
       - assets/css/formulaire-reservation.css
+  exemple-faq.html:
+    dépend de:
+      - assets/css/goldwizard-faq.css
+      - assets/js/goldwizard-faq.js

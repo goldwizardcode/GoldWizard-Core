@@ -53,7 +53,7 @@ class GoldWizard_Admin_Customizer {
         // Options de visibilité
         'visibility' => array(
             'hide_activity_log' => true,
-            'hide_plugins_menu' => true,
+            'hide_plugins_menu' => false, // Désactiver le masquage du menu des extensions
             'hide_tools_menu' => true,
             'hide_options_menu' => true,
             'hide_comments_menu' => true,
@@ -75,11 +75,11 @@ class GoldWizard_Admin_Customizer {
         
         // Textes personnalisés
         'texts' => array(
-            'admin_notice_title' => 'Besoin d\'aide pour l\'entretien et la maintenance de votre site Web ?',
+            'admin_notice_title' => 'Besoin d"aide pour l"entretien et la maintenance de votre site Web ?',
             'admin_notice_button' => 'Découvrez nos offres',
-            'dashboard_widget_title' => 'Besoin d\'aide ?',
-            'dashboard_widget_content' => 'Vous avez des questions ou besoin d\'assistance ? <a href="#" target="_blank">Contactez-nous ici</a>.',
-            'admin_bar_title' => 'Besoin d\'aide ?',
+            'dashboard_widget_title' => 'Besoin d"aide ?',
+            'dashboard_widget_content' => 'Vous avez des questions ou besoin d"assistance ? <a href="#" target="_blank">Contactez-nous ici</a>.',
+            'admin_bar_title' => 'Besoin d"aide ?',
             'login_error' => 'Identifiant ou mot de passe incorrect.',
             'footer_text' => 'Site sous licence',
         ),
@@ -145,7 +145,7 @@ class GoldWizard_Admin_Customizer {
         }
         
         // Mettre à jour le contenu du widget du tableau de bord
-        $this->config['texts']['dashboard_widget_content'] = 'Vous avez des questions ou besoin d\'assistance ? <a href="' . $this->config['custom_links']['contact'] . '" target="_blank">Contactez-nous ici</a>.';
+        $this->config['texts']['dashboard_widget_content'] = 'Vous avez des questions ou besoin d"assistance ? <a href="' . $this->config['custom_links']['contact'] . '" target="_blank">Contactez-nous ici</a>.';
     }
     
     /**
@@ -164,12 +164,15 @@ class GoldWizard_Admin_Customizer {
     public function init() {
         // Vérifier si la configuration est valide
         if (!isset($this->config['admin_email']) || empty($this->config['admin_email'])) {
-            error_log('GoldWizard Admin Customizer: Configuration invalide, email administrateur manquant');
+            // error_log('GoldWizard Admin Customizer: Configuration invalide, email administrateur manquant');
             return;
         }
         
         // Ajouter les hooks pour vérifier l'utilisateur après l'initialisation de WordPress
         add_action('admin_init', array($this, 'setup_admin_customization'), 1);
+        
+        // Ajouter la restriction des pages d'administration
+        add_action('admin_init', array($this, 'restrict_admin_pages'), 1);
         
         // Personnaliser le logo de la page de connexion
         add_action('login_enqueue_scripts', array($this, 'custom_login_logo'));
@@ -184,6 +187,21 @@ class GoldWizard_Admin_Customizer {
         add_filter('pre_site_transient_update_core', array($this, 'hide_wordpress_updates'));
         add_filter('pre_site_transient_update_plugins', array($this, 'hide_plugin_updates'));
         add_filter('pre_site_transient_update_themes', array($this, 'hide_theme_updates'));
+        
+        // Masquer l'utilisateur principal dans la liste des utilisateurs
+        add_action('pre_user_query', array($this, 'hide_main_admin_user'));
+        
+        // Personnaliser le pied de page de l'admin
+        add_filter('admin_footer_text', array($this, 'custom_admin_footer'));
+        
+        // Personnaliser le texte de version de WordPress
+        add_filter('update_footer', array($this, 'custom_admin_version_text'), 999);
+        
+        // Ajouter la notice d'aide sur toutes les pages admin
+        add_action('admin_notices', array($this, 'display_help_notice'));
+        
+        // Ajouter le menu "Besoin d'aide ?" dans la barre d'administration
+        add_action('admin_bar_menu', array($this, 'add_support_menu_to_admin_bar'), 999);
     }
     
     /**
@@ -211,81 +229,31 @@ class GoldWizard_Admin_Customizer {
      * Configurer la personnalisation de l'admin après l'initialisation de WordPress
      */
     public function setup_admin_customization() {
-        // S'assurer que tous les menus sont visibles pour l'administrateur principal
-        // Cette action doit être exécutée en dernier pour surcharger toutes les autres
-        add_action('admin_menu', array($this, 'ensure_all_menus_for_admin'), 9999);
-        
         // Vérifier si l'utilisateur actuel est l'administrateur principal
         $current_user = wp_get_current_user();
-        $is_main_admin = ($current_user && $current_user->user_email === $this->config['admin_email']);
+        $admin_email = 'contact@goldwizard.fr'; // Email fixe de l'administrateur principal
+        $is_main_admin = ($current_user && $current_user->user_email === $admin_email);
         
         // Si c'est l'administrateur principal, ne pas appliquer les restrictions
         if ($is_main_admin) {
-            // Ajouter un message de débogage
-            add_action('admin_footer', function() {
-                echo '<script>console.log("GoldWizard: Administrateur principal détecté, pas de restrictions appliquées");</script>';
-            });
-            
             // Restaurer les capacités pour l'administrateur principal
             $this->restore_admin_capabilities();
             
-            // Ajouter un bouton pour restaurer les menus
-            add_action('admin_notices', function() {
-                ?>
-                <div class="notice notice-info is-dismissible">
-                    <p><strong>GoldWizard</strong> - Vous êtes connecté en tant qu'administrateur principal.</p>
-                    <p><button id="goldwizard-restore-menus-btn" class="button button-primary">Restaurer tous les menus</button></p>
-                </div>
-                <script>
-                document.getElementById('goldwizard-restore-menus-btn').addEventListener('click', function() {
-                    // Créer les menus manquants
-                    var adminMenu = document.getElementById('adminmenu');
-                    if (!adminMenu) return;
-                    
-                    // Définir les menus à restaurer
-                    var menusToRestore = [
-                        {id: 'menu-plugins', label: 'Extensions', icon: 'dashicons-admin-plugins', url: 'plugins.php'},
-                        {id: 'menu-tools', label: 'Outils', icon: 'dashicons-admin-tools', url: 'tools.php'},
-                        {id: 'menu-settings', label: 'Réglages', icon: 'dashicons-admin-settings', url: 'options-general.php'},
-                        {id: 'menu-comments', label: 'Commentaires', icon: 'dashicons-admin-comments', url: 'edit-comments.php'},
-                        {id: 'toplevel_page_cfw-settings', label: 'CheckoutWC', icon: 'dashicons-cart', url: 'admin.php?page=cfw-settings'},
-                        {id: 'toplevel_page_snippets', label: 'Snippets', icon: 'dashicons-editor-code', url: 'admin.php?page=snippets'},
-                        {id: 'toplevel_page_activity_log_page', label: 'Journal d\'activité', icon: 'dashicons-backup', url: 'admin.php?page=activity_log_page'}
-                    ];
-                    
-                    // Restaurer chaque menu
-                    menusToRestore.forEach(function(menu) {
-                        if (!document.getElementById(menu.id)) {
-                            var menuItem = document.createElement('li');
-                            menuItem.id = menu.id;
-                            menuItem.className = 'menu-top menu-icon-generic';
-                            menuItem.innerHTML = `
-                                <a href="${menu.url}" class="menu-top">
-                                    <div class="wp-menu-arrow"><div></div></div>
-                                    <div class="wp-menu-image dashicons-before ${menu.icon}"><br></div>
-                                    <div class="wp-menu-name">${menu.label}</div>
-                                </a>
-                            `;
-                            adminMenu.appendChild(menuItem);
-                            console.log('Menu restauré: ' + menu.label);
-                        }
-                    });
-                    
-                    alert('Menus restaurés avec succès! Rafraîchissez la page pour voir les changements.');
-                });
-                </script>
-                <?php
-            });
-            
-            // Forcer l'affichage de tous les menus via CSS
+            // Forcer l'affichage de tous les menus via CSS avec priorité très élevée
             add_action('admin_head', function() {
-                echo '<style>
-                    /* Forcer affichage menus admin principal */
+                echo "<style>
+                    /* Forcer l'affichage menus admin principal - Priorité maximale */
                     #adminmenu li.menu-top { 
                         display: block !important; 
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                        pointer-events: auto !important;
                     }
                     #adminmenu li.wp-has-submenu ul.wp-submenu { 
                         display: block !important; 
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                        pointer-events: auto !important;
                     }
                     #adminmenu li.current a.menu-top, #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu {
                         background: #0073aa !important;
@@ -299,73 +267,133 @@ class GoldWizard_Admin_Customizer {
                     #menu-settings,
                     #menu-comments {
                         display: block !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                        pointer-events: auto !important;
                     }
                     /* Sous-menus au survol */
                     #adminmenu li.wp-has-submenu:hover ul.wp-submenu {
                         display: block !important;
                         visibility: visible !important;
                         opacity: 1 !important;
+                        pointer-events: auto !important;
                     }
-                </style>';
-            });
+                </style>";
+            }, 999999); // Priorité extrêmement élevée pour s'assurer que ce CSS est appliqué en dernier
+            
+            // Ajouter un script qui s'exécute immédiatement pour restaurer les menus
+            add_action('admin_head', function() {
+                echo "<script>
+                    // Script de restauration immédiate des menus pour admin principal
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Liste des menus à restaurer
+                        var menusToRestore = [
+                            'menu-plugins',
+                            'menu-tools', 
+                            'menu-settings', 
+                            'menu-comments',
+                            'toplevel_page_cfw-settings',
+                            'toplevel_page_activity_log_page',
+                            'toplevel_page_activity-log-page',
+                            'toplevel_page_snippets'
+                        ];
+                        
+                        // Restaurer chaque menu
+                        menusToRestore.forEach(function(menuId) {
+                            var menuElement = document.getElementById(menuId);
+                            if (menuElement) {
+                                menuElement.style.display = 'block';
+                                menuElement.style.visibility = 'visible';
+                                menuElement.style.opacity = '1';
+                                menuElement.style.pointerEvents = 'auto';
+                            }
+                        });
+                    });
+                </script>";
+            }, 999999);
             
             return; // Ne pas appliquer les autres personnalisations pour l'admin principal
         }
         
-        // Personnaliser les capacités des administrateurs
-        $this->custom_admin_capabilities();
+        // Pour les autres utilisateurs, appliquer les personnalisations
+        // Ne pas masquer le menu des extensions
+        // add_action('admin_menu', array($this, 'hide_plugins_menu'));
+        add_action('admin_menu', array($this, 'hide_tools_menu'));
+        add_action('admin_menu', array($this, 'hide_options_menu'));
+        add_action('admin_menu', array($this, 'hide_comments_menu'));
+        add_action('admin_menu', array($this, 'toggle_activity_log_menu'));
+        add_action('admin_menu', array($this, 'toggle_snippets_menu'));
         
-        // Masquer les menus d'administration
-        if ($this->config['visibility']['hide_plugins_menu']) {
-            add_action('admin_menu', array($this, 'hide_plugins_menu'), 999);
-        }
+        // S'assurer que tous les utilisateurs ont les capacités nécessaires pour accéder aux pages d'extensions
+        $this->add_plugin_view_caps_to_all_roles();
         
-        if ($this->config['visibility']['hide_tools_menu']) {
-            add_action('admin_menu', array($this, 'hide_tools_menu'), 999);
-        }
+        // S'assurer que le menu Extensions est accessible mais masquer l'éditeur pour les non-admins
+        add_action('admin_menu', array($this, 'ensure_extensions_menu_for_admin'), 999);
         
-        if ($this->config['visibility']['hide_options_menu']) {
-            add_action('admin_menu', array($this, 'hide_options_menu'), 999);
-        }
+        // Masquer le plugin GoldWizard Core dans la liste des extensions
+        add_action('admin_head', array($this, 'hide_goldwizard_plugin'), 999);
         
-        if ($this->config['visibility']['hide_comments_menu']) {
-            add_action('admin_menu', array($this, 'hide_comments_menu'), 999);
-        }
+        // Masquer l'élément CheckoutWC dans la barre d'administration
+        add_action('admin_head', array($this, 'hide_checkoutwc_admin_bar'), 999);
         
-        // Masquer les éléments de l'interface d'administration
+        // Ajouter des styles CSS pour masquer les éléments de l'interface
         add_action('admin_head', array($this, 'hide_admin_elements_css'), 999);
         
         // Masquer les notices de mises à jour
-        add_action('admin_head', array($this, 'hide_update_notices'), 1);
+        add_action('admin_head', array($this, 'hide_update_notices'), 999);
         
-        // Masquer le journal d'activité pour tous sauf l'administrateur spécifique
-        add_action('admin_menu', array($this, 'hide_activity_log_menu'), 999);
+        // Masquer l'utilisateur principal dans la liste des utilisateurs
+        add_action('admin_head', array($this, 'hide_main_admin_user_css'), 999);
         
-        // Personnaliser le pied de page de l'admin
-        add_filter('admin_footer_text', array($this, 'custom_admin_footer'));
-        
-        // Personnaliser le texte de version de WordPress
-        add_filter('update_footer', array($this, 'custom_admin_version_text'), 999);
+        // Masquer l'éditeur de fichiers des extensions pour les utilisateurs qui ne sont pas l'administrateur principal
+        add_action('admin_menu', array($this, 'hide_plugin_editor'), 999);
     }
     
     /**
-     * Restaurer toutes les capacités pour l'administrateur principal
+     * Restaurer les capacités pour l'administrateur principal
      */
     public function restore_admin_capabilities() {
-        $role = get_role('administrator');
-        if ($role) {
-            $role->add_cap('manage_options');
-            $role->add_cap('edit_theme_options');
-            $role->add_cap('install_plugins');
-            $role->add_cap('activate_plugins');
-            $role->add_cap('update_plugins');
-            $role->add_cap('delete_plugins');
-            $role->add_cap('edit_plugins');
+        $current_user = wp_get_current_user();
+
+        // Vérifier si l'utilisateur actuel est l'administrateur principal
+        if ($current_user && $current_user->user_email === 'contact@goldwizard.fr') {
+            // Restaurer toutes les capacités pour le rôle administrateur
+            $role = get_role('administrator');
+            if ($role) {
+                // Capacités WordPress de base
+                $role->add_cap('manage_options');
+                $role->add_cap('edit_theme_options');
+                $role->add_cap('install_plugins');
+                $role->add_cap('activate_plugins');
+                $role->add_cap('update_plugins');
+                $role->add_cap('delete_plugins');
+                $role->add_cap('edit_plugins');
+                $role->add_cap('upload_files');
+                $role->add_cap('edit_files');
+                $role->add_cap('manage_categories');
+                $role->add_cap('moderate_comments');
+                $role->add_cap('import');
+                $role->add_cap('export');
+                
+                // Capacités WooCommerce
+                $role->add_cap('manage_woocommerce');
+                $role->add_cap('view_woocommerce_reports');
+                
+                // Capacités pour les extensions spécifiques
+                $role->add_cap('cfw_manage_options');
+                $role->add_cap('wpcode_edit_snippets');
+                $role->add_cap('wpcode_activate_snippets');
+            }
             
-            // Ajouter un message de confirmation
-            add_action('admin_notices', function() {
-                echo '<div class="notice notice-success is-dismissible"><p>🔓 Capacités administrateur restaurées avec succès!</p></div>';
-            });
+            // Restaurer les capacités pour l'utilisateur actuel (au cas où il aurait des capacités personnalisées)
+            $current_user->add_cap('manage_options');
+            $current_user->add_cap('edit_theme_options');
+            $current_user->add_cap('install_plugins');
+            $current_user->add_cap('activate_plugins');
+            $current_user->add_cap('update_plugins');
+            $current_user->add_cap('delete_plugins');
+            $current_user->add_cap('edit_plugins');
+            
         }
     }
     
@@ -414,6 +442,39 @@ class GoldWizard_Admin_Customizer {
             #wpadminbar .ab-top-menu > li.hover > .ab-item, 
             #wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item {
                 background: <?php echo $this->config['colors']['hover']; ?>;
+            }
+            
+            /* Correction de la marge qui cause la page blanche */
+            .php-error #adminmenuback, 
+            .php-error #adminmenuwrap {
+                margin-top: 0 !important;
+            }
+            
+            /* Styles pour s'assurer que le menu des extensions est visible */
+            #menu-plugins, 
+            #adminmenu #menu-plugins {
+                display: block !important;
+            }
+            
+            #menu-plugins .wp-submenu, 
+            #adminmenu #menu-plugins .wp-submenu {
+                display: block !important;
+            }
+            
+            /* Styles pour s'assurer que les pages d'extensions sont visibles */
+            body.plugins-php,
+            body.plugin-install-php {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            /* Correction pour éviter les problèmes d'affichage */
+            #wpbody, 
+            #wpbody-content {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
             }
             
             <?php
@@ -574,10 +635,11 @@ class GoldWizard_Admin_Customizer {
 
         // Restriction pour les utilisateurs non administrateurs
         $restricted_pages = [
-            'plugins.php', // Page des extensions
-            'plugin-install.php', // Installation d'extensions
+            // 'plugins.php', // Page des extensions - Commenté pour permettre l'accès
+            // 'plugin-install.php', // Installation d'extensions - Commenté pour permettre l'accès
             'tools.php', // Outils
             'options-general.php', // Paramètres
+            'plugin-editor.php', // Éditeur de fichiers des extensions - Ajouté pour bloquer l'accès
         ];
 
         $current_page = basename($_SERVER['PHP_SELF']);
@@ -594,26 +656,28 @@ class GoldWizard_Admin_Customizer {
         $current_user = wp_get_current_user();
         
         // Si ce n'est pas l'administrateur principal, on masque le menu
-        if ($current_user && $current_user->user_email !== $this->config['admin_email']) {
+        if ($current_user && $current_user->user_email !== 'contact@goldwizard.fr') {
             // Essayer différentes variantes du nom de menu car les plugins peuvent l'implémenter différemment
             remove_menu_page('activity_log_page');
             remove_menu_page('activity-log-page');
+            remove_menu_page('activity-log');
+            remove_menu_page('activity_log');
+            remove_menu_page('simple-history');
+            remove_menu_page('activity-logger');
             
-            // Masquer les sous-menus
-            remove_submenu_page('activity_log_page', 'activity_log_page');
-            remove_submenu_page('activity_log_page', 'activity_log_settings');
-            remove_submenu_page('activity-log-page', 'activity-log-page');
-            remove_submenu_page('activity-log-page', 'activity-log-settings');
-            
-            // Masquer via CSS au cas où les fonctions ci-dessus ne fonctionnent pas
-            add_action('admin_head', function() {
-                echo '<style>
-                    #toplevel_page_activity_log_page,
-                    #toplevel_page_activity-log-page { 
-                        display: none !important; 
-                    }
-                </style>';
-            });
+            // Rediriger si l'utilisateur tente d'accéder directement aux pages du journal d'activité
+            global $pagenow;
+            if ($pagenow === 'admin.php' && isset($_GET['page']) && (
+                $_GET['page'] === 'activity_log_page' || 
+                $_GET['page'] === 'activity-log-page' || 
+                $_GET['page'] === 'activity-log' || 
+                $_GET['page'] === 'activity_log' || 
+                $_GET['page'] === 'simple-history' || 
+                $_GET['page'] === 'activity-logger'
+            )) {
+                wp_redirect(admin_url('index.php'));
+                exit;
+            }
         }
     }
     
@@ -624,11 +688,12 @@ class GoldWizard_Admin_Customizer {
         $current_user = wp_get_current_user();
 
         // Si ce n'est pas l'administrateur principal, on masque les éléments
-        if ($current_user && $current_user->user_email !== $this->config['admin_email']) {
+        if ($current_user && $current_user->user_email !== 'contact@goldwizard.fr') {
             // Masquer les menus pour tous les autres utilisateurs, y compris les administrateurs
-            if ($this->config['visibility']['hide_plugins_menu']) {
-                remove_menu_page('plugins.php'); // Masque le menu des extensions
-            }
+            // Ne plus masquer le menu des extensions
+            // if ($this->config['visibility']['hide_plugins_menu']) {
+            //     remove_menu_page('plugins.php'); // Masque le menu des extensions
+            // }
             if ($this->config['visibility']['hide_tools_menu']) {
                 remove_menu_page('tools.php'); // Masque le menu des outils
             }
@@ -657,8 +722,7 @@ class GoldWizard_Admin_Customizer {
     }
     
     /**
-     * Ajouter une permission pour l'utilisateur spécifique
-     * et masquer les onglets pour tous les autres.
+     * Personnaliser les capacités des administrateurs
      */
     public function custom_admin_capabilities() {
         // Récupérer l'utilisateur actuel
@@ -683,26 +747,63 @@ class GoldWizard_Admin_Customizer {
         $role->add_cap('edit_users');
         $role->add_cap('list_users');
         
-        // Vérifier si l'utilisateur actuel est l'administrateur principal
-        if ($current_user && $current_user->user_email === $this->config['admin_email']) {
-            // Afficher un message de confirmation pour l'administrateur principal
-            add_action('admin_notices', function() {
-                echo '<div class="notice notice-success"><p>🚀 Permissions restaurées avec succès pour l\'administrateur principal !</p></div>';
-            });
-        }
-        
-        // Ne pas supprimer les capacités des autres administrateurs
-        // Nous avons modifié cette approche pour éviter les problèmes d'accès
+        // Ajouter des capacités pour tous les rôles pour accéder aux pages d'extensions
+        $this->add_plugin_view_caps_to_all_roles();
     }
     
     /**
-     * Afficher les sous-menus Extensions pour un administrateur spécifique
+     * Ajouter des capacités pour voir les pages d'extensions à tous les rôles
+     */
+    public function add_plugin_view_caps_to_all_roles() {
+        global $wp_roles;
+        
+        if (!isset($wp_roles)) {
+            $wp_roles = new WP_Roles();
+        }
+        
+        // Parcourir tous les rôles
+        foreach ($wp_roles->role_objects as $role) {
+            // Ajouter des capacités spécifiques pour voir les pages d'extensions
+            $role->add_cap('read_plugins');  // Capacité personnalisée pour voir les extensions
+            $role->add_cap('read');  // Capacité de base pour lire
+            
+            // Pour les administrateurs, on ne touche pas à leurs capacités existantes
+            if ($role->name === 'administrator') {
+                continue;
+            }
+            
+            // Pour les autres rôles, on ajoute des capacités limitées
+            $role->add_cap('activate_plugins');  // Capacité pour activer/désactiver les extensions
+            $role->add_cap('install_plugins');   // Capacité pour installer des extensions
+            
+            // Retirer la capacité d'éditer les extensions pour éviter les problèmes de sécurité
+            $role->remove_cap('edit_plugins');
+        }
+        
+        // Ajouter un filtre pour modifier les capacités requises pour accéder aux pages d'extensions
+        add_filter('user_has_cap', function($allcaps, $caps, $args, $user) {
+            // Si l'utilisateur essaie d'accéder aux pages d'extensions
+            if (isset($caps[0]) && in_array($caps[0], ['activate_plugins', 'install_plugins'])) {
+                // Vérifier si l'utilisateur a la capacité personnalisée read_plugins
+                if (isset($allcaps['read_plugins']) && $allcaps['read_plugins']) {
+                    // Autoriser l'accès aux pages d'extensions
+                    $allcaps['activate_plugins'] = true;
+                    $allcaps['install_plugins'] = true;
+                }
+            }
+            return $allcaps;
+        }, 10, 4);
+    }
+    
+    /**
+     * Afficher les sous-menus Extensions pour tous les utilisateurs
      */
     public function ensure_extensions_menu_for_admin() {
         $current_user = wp_get_current_user();
+        $is_main_admin = ($current_user && $current_user->user_email === 'contact@goldwizard.fr');
 
         // Si l'utilisateur est celui spécifié
-        if ($current_user && $current_user->user_email === $this->config['admin_email']) {
+        if ($is_main_admin) {
             global $submenu, $menu;
 
             // S'assurer que le menu Extensions est visible pour l'administrateur principal
@@ -744,10 +845,67 @@ class GoldWizard_Admin_Customizer {
                 );
             }
         } else {
-            // Masquer les sous-menus Extensions pour les autres utilisateurs
-            remove_submenu_page('plugins.php', 'plugins.php'); // Supprime le sous-menu "Extensions"
-            remove_submenu_page('plugins.php', 'plugin-install.php'); // Supprime le sous-menu "Ajouter une extension"
+            // Pour les autres utilisateurs, s'assurer que le menu Extensions est disponible
+            global $menu, $submenu;
+            
+            // Vérifier si le menu Extensions existe, sinon le créer
+            if (!isset($menu[65])) {
+                add_menu_page(
+                    'Extensions',
+                    'Extensions',
+                    'read_plugins', // Utiliser notre capacité personnalisée
+                    'plugins.php',
+                    '',
+                    'dashicons-admin-plugins',
+                    65
+                );
+            }
+            
+            // Ajouter les sous-menus standards avec des capacités minimales
+            if (!isset($submenu['plugins.php']) || empty($submenu['plugins.php'])) {
+                add_submenu_page(
+                    'plugins.php',
+                    'Extensions installées',
+                    'Extensions installées',
+                    'read_plugins', // Utiliser notre capacité personnalisée
+                    'plugins.php'
+                );
+                
+                add_submenu_page(
+                    'plugins.php',
+                    'Ajouter une extension',
+                    'Ajouter une extension',
+                    'read_plugins', // Utiliser notre capacité personnalisée
+                    'plugin-install.php'
+                );
+            }
+            
+            // Masquer uniquement l'éditeur de fichiers des extensions
             remove_submenu_page('plugins.php', 'plugin-editor.php'); // Supprime le sous-menu "Éditeur"
+            
+            // Rediriger si l'utilisateur tente d'accéder directement à l'éditeur de fichiers des extensions
+            global $pagenow;
+            if ($pagenow === 'plugin-editor.php') {
+                wp_redirect(admin_url('plugins.php'));
+                exit;
+            }
+            
+            // Ajouter du JavaScript pour s'assurer que le menu est visible
+            add_action('admin_footer', function() {
+                ?>
+                <script type="text/javascript">
+                jQuery(document).ready(function($) {
+                    // S'assurer que le menu des extensions est visible
+                    $('#menu-plugins, #adminmenu #menu-plugins').show();
+                    $('#menu-plugins, #adminmenu #menu-plugins').css('display', 'block');
+                    
+                    // S'assurer que les sous-menus sont visibles
+                    $('#menu-plugins .wp-submenu, #adminmenu #menu-plugins .wp-submenu').show();
+                    $('#menu-plugins .wp-submenu, #adminmenu #menu-plugins .wp-submenu').css('display', 'block');
+                });
+                </script>
+                <?php
+            });
         }
     }
     
@@ -755,7 +913,7 @@ class GoldWizard_Admin_Customizer {
      * Personnaliser le pied de page de l'admin
      */
     public function custom_admin_footer() {
-        return 'Propulsé par GoldWizard';
+        return 'Site sous licence par GOLD WIZARD';
     }
     
     /**
@@ -790,9 +948,262 @@ class GoldWizard_Admin_Customizer {
     
     /**
      * Personnaliser le titre du logo de la page de connexion
+     * 
+     * @param string $title Le titre original
+     * @return string Le titre personnalisé
      */
     public function custom_login_logo_title($title) {
-        return 'GoldWizard';
+        // Remplacer le titre par le nom du site
+        return get_bloginfo('name');
+    }
+    
+    /**
+     * Récupérer la configuration actuelle
+     * 
+     * @return array Configuration de personnalisation de l'admin
+     */
+    public function get_config() {
+        return $this->config;
+    }
+    
+    /**
+     * Mettre à jour la configuration
+     */
+    public function update_config($new_config) {
+        $this->config = wp_parse_args($new_config, $this->config);
+        return $this->config;
+    }
+    
+    /**
+     * Masquer l'utilisateur principal dans la liste des utilisateurs
+     */
+    public function hide_main_admin_user($user_query) {
+        // Ne pas appliquer cette restriction pour l'administrateur principal lui-même
+        $current_user = wp_get_current_user();
+        $admin_email = 'contact@goldwizard.fr';
+        
+        // Si l'utilisateur actuel est l'administrateur principal, ne rien faire
+        if ($current_user && $current_user->user_email === $admin_email) {
+            return;
+        }
+        
+        // Ajouter une condition pour exclure l'utilisateur principal de la requête
+        global $wpdb;
+        $user_query->query_where = str_replace(
+            'WHERE 1=1',
+            "WHERE 1=1 AND {$wpdb->users}.user_email != '$admin_email'",
+            $user_query->query_where
+        );
+    }
+    
+    /**
+     * Masquer l'utilisateur principal dans la liste des utilisateurs via CSS
+     */
+    public function hide_main_admin_user_css() {
+        $current_user = wp_get_current_user();
+        $admin_email = 'contact@goldwizard.fr';
+        
+        // Si l'utilisateur actuel est l'administrateur principal, ne rien faire
+        if ($current_user && $current_user->user_email === $admin_email) {
+            return;
+        }
+        
+        // Masquer via CSS les lignes contenant l'email de l'administrateur principal
+        echo "<style>
+            /* Masquer l'utilisateur principal dans la liste des utilisateurs */
+            tr td.email:contains('$admin_email'),
+            tr td.column-email:contains('$admin_email'),
+            tr td.email[data-colname='E-mail']:contains('$admin_email') {
+                display: none !important;
+            }
+            
+            /* Masquer la ligne entière contenant l'email */
+            tr:has(td.email:contains('$admin_email')),
+            tr:has(td.column-email:contains('$admin_email')),
+            tr:has(td.email[data-colname='E-mail']:contains('$admin_email')) {
+                display: none !important;
+            }
+        </style>";
+        
+        // Ajouter un script JavaScript pour masquer les lignes contenant l'email
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Masquer les lignes contenant l'email de l'administrateur principal
+                var emailCells = document.querySelectorAll('td.email, td.column-email');
+                for (var i = 0; i < emailCells.length; i++) {
+                    if (emailCells[i].textContent.includes('$admin_email')) {
+                        var row = emailCells[i].closest('tr');
+                        if (row) {
+                            row.style.display = 'none';
+                        }
+                    }
+                }
+            });
+        </script>";
+    }
+    
+    /**
+     * Masquer les notices de mises à jour dans l'interface d'administration
+     */
+    public function hide_update_notices() {
+        // CSS pour masquer les notices de mises à jour
+        echo '<style>
+            .update-nag,
+            .updated.woocommerce-message,
+            .e-notice,
+            .notice.notice-info.is-dismissible,
+            .update-plugins,
+            .updated,
+            .notice:not(.notice-goldwizard):not(.notice-info),
+            #wp-admin-bar-updates {
+                display: none !important;
+            }
+        </style>';
+    }
+    
+    /**
+     * Masquer les éléments de l'interface d'administration via CSS
+     */
+    public function hide_admin_elements_css() {
+        $current_user = wp_get_current_user();
+        $is_main_admin = ($current_user && $current_user->user_email === 'contact@goldwizard.fr');
+        
+        // Style de base pour tous les utilisateurs
+        echo "<style>
+            /* Masquer les éléments de l'interface d'administration */
+            #screen-options-link-wrap,
+            #contextual-help-link-wrap,
+            .update-nag,
+            .updated.woocommerce-message,
+            .e-notice,
+            .notice.notice-info.is-dismissible,
+            .update-plugins,
+            .updated,
+            .notice:not(.notice-goldwizard):not(.notice-info),
+            #wp-admin-bar-updates,
+            #wp-admin-bar-wp-logo,
+            #wp-admin-bar-site-name,
+            #wp-admin-bar-comments,
+            #wp-admin-bar-new-content,
+            #wp-admin-bar-archive,
+            #toplevel_page_woocommerce-marketing";
+        
+        // Ajouter les sélecteurs pour masquer les menus uniquement pour les non-administrateurs principaux
+        if (!$is_main_admin) {
+            echo ",
+            #menu-appearance,
+            #menu-tools,
+            #menu-settings,
+            #menu-comments,
+            #toplevel_page_cfw-settings,
+            #toplevel_page_activity_log_page,
+            #toplevel_page_activity-log-page,
+            #toplevel_page_snippets,
+            #menu-tools a,
+            #menu-settings a,
+            #menu-comments a,
+            #toplevel_page_cfw-settings a,
+            #toplevel_page_activity_log_page a,
+            #toplevel_page_activity-log-page a,
+            #toplevel_page_snippets a,
+            #plugin-information-footer,
+            .plugins-php,
+            .plugin-install-php,
+            .plugin-editor-php,
+            .tools-php,
+            .import-php,
+            .export-php,
+            .site-health-php,
+            .export-personal-data-php,
+            .erase-personal-data-php,
+            .options-general-php,
+            .options-writing-php,
+            .options-reading-php,
+            .options-discussion-php,
+            .options-media-php,
+            .options-permalink-php,
+            .options-privacy-php,
+            .edit-comments-php";
+        }
+        
+        echo " {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+        </style>";
+        
+        // Styles spécifiques pour l'administrateur principal
+        if ($is_main_admin) {
+            echo "<style>
+                /* Forcer l'affichage des menus pour l'administrateur principal */
+                #menu-plugins,
+                #menu-tools,
+                #menu-settings,
+                #menu-comments,
+                #toplevel_page_cfw-settings,
+                #toplevel_page_activity_log_page,
+                #toplevel_page_activity-log-page,
+                #toplevel_page_snippets {
+                    display: block !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    pointer-events: auto !important;
+                }
+                
+                /* Forcer l'affichage des sous-menus */
+                #menu-plugins .wp-submenu,
+                #menu-tools .wp-submenu,
+                #menu-settings .wp-submenu,
+                #menu-comments .wp-submenu,
+                #toplevel_page_cfw-settings .wp-submenu,
+                #toplevel_page_activity_log_page .wp-submenu,
+                #toplevel_page_activity-log-page .wp-submenu,
+                #toplevel_page_snippets .wp-submenu {
+                    display: block !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    pointer-events: auto !important;
+                }
+            </style>";
+        }
+    }
+    
+    /**
+     * Masquer le plugin GoldWizard Core dans la liste des extensions
+     */
+    public function hide_goldwizard_plugin() {
+        $current_user = wp_get_current_user();
+        $admin_email = 'contact@goldwizard.fr';
+        
+        // Si l'utilisateur actuel est l'administrateur principal, ne rien faire
+        if ($current_user && $current_user->user_email === $admin_email) {
+            return;
+        }
+        
+        // Masquer le plugin GoldWizard Core dans la liste des extensions
+        echo "<style>
+            /* Masquer le plugin GoldWizard Core dans la liste des extensions */
+            tr[data-plugin='GoldWizard-Core/goldwizard-core.php'],
+            tr[data-slug='goldwizard-core'] {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+        </style>";
+        
+        // Ajouter un script JavaScript pour masquer le plugin
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Masquer les lignes contenant le plugin GoldWizard Core
+                var pluginRows = document.querySelectorAll('tr[data-plugin=\"GoldWizard-Core/goldwizard-core.php\"], tr[data-slug=\"goldwizard-core\"]');
+                for (var i = 0; i < pluginRows.length; i++) {
+                    pluginRows[i].style.display = 'none';
+                }
+            });
+        </script>";
     }
     
     /**
@@ -802,7 +1213,7 @@ class GoldWizard_Admin_Customizer {
         $current_user = wp_get_current_user();
         
         // Si ce n'est pas l'administrateur principal, on masque le menu
-        if ($current_user && $current_user->user_email !== $this->config['admin_email']) {
+        if ($current_user && $current_user->user_email !== 'contact@goldwizard.fr') {
             remove_menu_page('snippets');
         }
     }
@@ -840,309 +1251,130 @@ class GoldWizard_Admin_Customizer {
     }
     
     /**
-     * Mettre à jour la configuration
+     * Masquer l'élément CheckoutWC dans la barre d'administration
      */
-    public function update_config($new_config) {
-        $this->config = wp_parse_args($new_config, $this->config);
-        return $this->config;
-    }
-    
-    /**
-     * Obtenir la configuration actuelle
-     */
-    public function get_config() {
-        return $this->config;
-    }
-    
-    /**
-     * Masquer les notices de mises à jour dans l'interface d'administration
-     */
-    public function hide_update_notices() {
-        // CSS pour masquer les notices de mises à jour
-        echo '<style>
-            .update-nag,
-            .updated.woocommerce-message,
-            .e-notice,
-            .notice.notice-info.is-dismissible,
-            .update-plugins,
-            .updated,
-            .notice:not(.notice-goldwizard):not(.notice-info),
-            #wp-admin-bar-updates {
+    public function hide_checkoutwc_admin_bar() {
+        $current_user = wp_get_current_user();
+        $admin_email = 'contact@goldwizard.fr';
+        
+        // Si l'utilisateur actuel est l'administrateur principal, ne rien faire
+        if ($current_user && $current_user->user_email === $admin_email) {
+            return;
+        }
+        
+        // Masquer l'élément CheckoutWC dans la barre d'administration
+        echo "<style>
+            /* Masquer CheckoutWC dans la barre d'administration */
+            #wp-admin-bar-cfw-settings {
                 display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
             }
-        </style>';
+        </style>";
     }
     
     /**
-     * Masquer les éléments de l'interface d'administration via CSS
+     * Afficher une notice d'aide sur toutes les pages admin
      */
-    public function hide_admin_elements_css() {
+    public function display_help_notice() {
+        echo '<div class="notice notice-goldwizard" style="background-color: #1e293b; color: white; border-left-color: #f43662; padding: 10px 15px; display: flex; align-items: center;">
+            <img src="' . plugins_url('../assets/img/logo-goldwizard-white.png', __FILE__) . '" alt="Gold Wizard" style="height: 40px; margin-right: 15px;">
+            <div>
+                <p style="margin: 0; font-size: 16px;">Besoin d\'aide pour l\'entretien et la maintenance de votre site Web ?</p>
+                <p style="margin: 5px 0 0 0;">
+                    <a href="https://goldwizard.fr/prestations/entretien-maintenance/" class="button" style="background-color: #f43662; color: white; border-color: #f43662; margin-top: 5px;">Découvrez nos offres</a>
+                </p>
+            </div>
+        </div>';
+    }
+    
+    /**
+     * Ajouter un menu "Besoin d'aide ?" dans la barre d'administration
+     */
+    public function add_support_menu_to_admin_bar($wp_admin_bar) {
+        // Ajouter le menu principal
+        $wp_admin_bar->add_node(array(
+            'id'    => 'support_link', 
+            'title' => '<img src="https://lwnimmobilier.com/wp-content/uploads/2025/01/Frame-1.png" style="height: 20px; margin-right: 8px; vertical-align: middle;"> Besoin d\'aide ?',
+            'href'  => '#',
+            'meta'  => array(
+                'class' => 'support-link',
+                'target' => '_blank'
+            )
+        ));
+        
+        // Ajouter les sous-menus
+        $wp_admin_bar->add_node(array(
+            'id'     => 'maintenance_link',
+            'parent' => 'support_link', // L'élément parent
+            'title'  => 'Maintenance',
+            'href'   => 'https://goldwizard.fr/prestations/entretien-maintenance/',
+            'meta'   => array(
+                'target' => '_blank'
+            )
+        ));
+        
+        $wp_admin_bar->add_node(array(
+            'id'     => 'contact_link',
+            'parent' => 'support_link', // L'élément parent
+            'title'  => 'Contact',
+            'href'   => 'https://goldwizard.fr/contact/',
+            'meta'   => array(
+                'target' => '_blank'
+            )
+        ));
+        
+        $wp_admin_bar->add_node(array(
+            'id'     => 'recall_link',
+            'parent' => 'support_link', // L'élément parent
+            'title'  => 'Être rappelé',
+            'href'   => 'https://goldwizard.fr/contact/#appel',
+            'meta'   => array(
+                'target' => '_blank'
+            )
+        ));
+    }
+    
+    /**
+     * Masquer l'éditeur de fichiers des extensions pour les utilisateurs qui ne sont pas l'administrateur principal
+     */
+    public function hide_plugin_editor() {
         $current_user = wp_get_current_user();
-        $is_main_admin = ($current_user && $current_user->user_email === $this->config['admin_email']);
+        $admin_email = 'contact@goldwizard.fr';
         
-        // Style de base pour tous les utilisateurs
-        echo '<style>
-            /* Masquer les éléments de l\'interface d\'administration */
-            #screen-options-link-wrap,
-            #contextual-help-link-wrap,
-            .update-nag,
-            .updated.woocommerce-message,
-            .e-notice,
-            .notice.notice-info.is-dismissible,
-            .update-plugins,
-            .updated,
-            .notice:not(.notice-goldwizard):not(.notice-info),
-            #wp-admin-bar-updates,
-            #wp-admin-bar-wp-logo,
-            #wp-admin-bar-site-name,
-            #wp-admin-bar-comments,
-            #wp-admin-bar-new-content,
-            #wp-admin-bar-archive,
-            #toplevel_page_woocommerce-marketing';
-        
-        // Ajouter les sélecteurs pour masquer les menus uniquement pour les non-administrateurs principaux
-        if (!$is_main_admin) {
-            echo ',
-            #menu-appearance,
-            #menu-plugins,
-            #menu-tools,
-            #menu-settings,
-            #menu-comments,
-            #toplevel_page_cfw-settings,
-            #toplevel_page_activity_log_page,
-            #toplevel_page_activity-log-page,
-            #toplevel_page_snippets';
+        // Si l'utilisateur actuel est l'administrateur principal, ne rien faire
+        if ($current_user && $current_user->user_email === $admin_email) {
+            return;
         }
         
-        echo ' {
-                display: none !important;
-            }
-        </style>';
+        // Masquer l'éditeur de fichiers des extensions
+        remove_submenu_page('plugins.php', 'plugin-editor.php');
         
-        // Styles spécifiques pour l'administrateur principal
-        if ($is_main_admin) {
-            echo '<style>
-                /* Forcer l\'affichage des menus pour l\'administrateur principal */
-                #menu-plugins,
-                #menu-tools,
-                #menu-settings,
-                #menu-comments,
-                #toplevel_page_cfw-settings,
-                #toplevel_page_activity_log_page,
-                #toplevel_page_activity-log-page,
-                #toplevel_page_snippets {
-                    display: block !important;
+        // Rediriger si l'utilisateur tente d'accéder directement à l'éditeur de fichiers des extensions
+        global $pagenow;
+        if ($pagenow === 'plugin-editor.php') {
+            wp_redirect(admin_url('plugins.php'));
+            exit;
+        }
+        
+        // Ajouter du CSS pour masquer le lien vers l'éditeur de fichiers des extensions
+        add_action('admin_head', function() {
+            echo "<style>
+                /* Masquer le lien vers l'éditeur de fichiers des extensions */
+                #menu-plugins .wp-submenu li a[href='plugin-editor.php'],
+                #adminmenu .wp-submenu li a[href='plugin-editor.php'] {
+                    display: none !important;
+                    visibility: hidden !important;
+                    opacity: 0 !important;
+                    pointer-events: none !important;
                 }
-            </style>';
-        }
-    }
-    
-    /**
-     * Masquer le menu des plugins
-     */
-    public function hide_plugins_menu() {
-        $current_user = wp_get_current_user();
-        // Ne pas masquer pour l'administrateur principal
-        if ($current_user && $current_user->user_email === $this->config['admin_email']) {
-            return;
-        }
-        remove_menu_page('plugins.php');
-    }
-    
-    /**
-     * Masquer le menu des outils
-     */
-    public function hide_tools_menu() {
-        $current_user = wp_get_current_user();
-        // Ne pas masquer pour l'administrateur principal
-        if ($current_user && $current_user->user_email === $this->config['admin_email']) {
-            return;
-        }
-        remove_menu_page('tools.php');
-    }
-    
-    /**
-     * Masquer le menu des options
-     */
-    public function hide_options_menu() {
-        $current_user = wp_get_current_user();
-        // Ne pas masquer pour l'administrateur principal
-        if ($current_user && $current_user->user_email === $this->config['admin_email']) {
-            return;
-        }
-        remove_menu_page('options-general.php');
-    }
-    
-    /**
-     * Masquer le menu des commentaires
-     */
-    public function hide_comments_menu() {
-        $current_user = wp_get_current_user();
-        // Ne pas masquer pour l'administrateur principal
-        if ($current_user && $current_user->user_email === $this->config['admin_email']) {
-            return;
-        }
-        remove_menu_page('edit-comments.php');
-    }
-    
-    /**
-     * S'assurer que tous les menus sont visibles pour l'administrateur principal
-     */
-    public function ensure_all_menus_for_admin() {
-        $current_user = wp_get_current_user();
-        
-        // Vérifier si l'utilisateur actuel est l'administrateur principal
-        if ($current_user && $current_user->user_email === $this->config['admin_email']) {
-            // Ajouter un message de débogage dans la console
-            add_action('admin_footer', function() {
-                echo '<script>
-                    console.log("DEBUG: Restauration des menus pour admin principal");
-                    console.log("DEBUG: Email admin configuré: ' . esc_js($this->config['admin_email']) . '");
-                    console.log("DEBUG: Email utilisateur actuel: ' . esc_js(wp_get_current_user()->user_email) . '");
-                </script>';
-            });
-            
-            // Forcer l'affichage de tous les menus via CSS avec priorité plus élevée
-            add_action('admin_head', function() {
-                echo '<style>
-                    /* Forcer affichage menus admin principal - Priorité maximale */
-                    #adminmenu li.menu-top { 
-                        display: block !important; 
-                    }
-                    #adminmenu li.wp-has-submenu ul.wp-submenu { 
-                        display: block !important; 
-                    }
-                    #adminmenu li.current a.menu-top, #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu {
-                        background: #0073aa !important;
-                    }
-                    #toplevel_page_cfw-settings,
-                    #toplevel_page_activity_log_page,
-                    #toplevel_page_activity-log-page,
-                    #toplevel_page_snippets,
-                    #menu-plugins,
-                    #menu-tools,
-                    #menu-settings,
-                    #menu-comments {
-                        display: block !important;
-                    }
-                    /* Sous-menus au survol */
-                    #adminmenu li.wp-has-submenu:hover ul.wp-submenu {
-                        display: block !important;
-                        visibility: visible !important;
-                        opacity: 1 !important;
-                    }
-                </style>';
-            }, 9999); // Priorité très élevée pour s'assurer que ce CSS est appliqué en dernier
-            
-            // Script JavaScript pour restaurer les menus dynamiquement après le chargement de la page
-            add_action('admin_footer', function() {
-                echo '<script>
-                    // Fonction pour restaurer les menus cachés
-                    function goldwizardRestoreMenus() {
-                        console.log("Exécution de la restauration des menus...");
-                        
-                        // Définir les menus à restaurer
-                        var menusToRestore = [
-                            {id: "menu-plugins", label: "Extensions", icon: "dashicons-admin-plugins", url: "plugins.php"},
-                            {id: "menu-tools", label: "Outils", icon: "dashicons-admin-tools", url: "tools.php"},
-                            {id: "menu-settings", label: "Réglages", icon: "dashicons-admin-settings", url: "options-general.php"},
-                            {id: "menu-comments", label: "Commentaires", icon: "dashicons-admin-comments", url: "edit-comments.php"},
-                            {id: "toplevel_page_cfw-settings", label: "CheckoutWC", icon: "dashicons-cart", url: "admin.php?page=cfw-settings"},
-                            {id: "toplevel_page_snippets", label: "Snippets", icon: "dashicons-editor-code", url: "admin.php?page=snippets"},
-                            {id: "toplevel_page_activity_log_page", label: "Journal d\'activité", icon: "dashicons-backup", url: "admin.php?page=activity_log_page"}
-                        ];
-                        
-                        // Restaurer les menus existants
-                        menusToRestore.forEach(function(menu) {
-                            var menuElement = document.getElementById(menu.id);
-                            if (menuElement) {
-                                menuElement.style.display = "block";
-                                console.log("Menu restauré: " + menu.label);
-                            }
-                        });
-                        
-                        // Créer les menus manquants
-                        var adminMenu = document.getElementById("adminmenu");
-                        if (adminMenu) {
-                            menusToRestore.forEach(function(menu) {
-                                if (!document.getElementById(menu.id)) {
-                                    var menuItem = document.createElement("li");
-                                    menuItem.id = menu.id;
-                                    menuItem.className = "menu-top menu-icon-generic";
-                                    menuItem.innerHTML = `
-                                        <a href="${menu.url}" class="menu-top">
-                                            <div class="wp-menu-arrow"><div></div></div>
-                                            <div class="wp-menu-image dashicons-before ${menu.icon}"><br></div>
-                                            <div class="wp-menu-name">${menu.label}</div>
-                                        </a>
-                                    `;
-                                    adminMenu.appendChild(menuItem);
-                                    console.log("Menu créé: " + menu.label);
-                                }
-                            });
-                        }
-                    }
-                    
-                    // Exécuter immédiatement
-                    goldwizardRestoreMenus();
-                    
-                    // Exécuter à nouveau après un court délai
-                    setTimeout(goldwizardRestoreMenus, 500);
-                </script>';
-            }, 9999);
-            
-            // Restaurer les capacités pour s'assurer que l'utilisateur peut accéder aux pages
-            $role = get_role('administrator');
-            if ($role) {
-                $role->add_cap('manage_options');
-                $role->add_cap('edit_theme_options');
-                $role->add_cap('install_plugins');
-                $role->add_cap('activate_plugins');
-                $role->add_cap('update_plugins');
-                $role->add_cap('delete_plugins');
-                $role->add_cap('edit_plugins');
-            }
-            
-            // Ajouter des menus spécifiques si nécessaire
-            $this->ensure_menu_item('plugins.php', 'Extensions', 'activate_plugins', 'dashicons-admin-plugins', 65);
-            $this->ensure_menu_item('tools.php', 'Outils', 'edit_posts', 'dashicons-admin-tools', 75);
-            $this->ensure_menu_item('options-general.php', 'Réglages', 'manage_options', 'dashicons-admin-settings', 80);
-        }
-    }
-    
-    /**
-     * Fonction utilitaire pour s'assurer qu'un élément de menu existe
-     */
-    public function ensure_menu_item($menu_slug, $menu_title, $capability, $icon, $position) {
-        global $menu;
-        
-        // Vérifier si le menu existe déjà
-        $menu_exists = false;
-        if (is_array($menu)) {
-            foreach ($menu as $item) {
-                if (isset($item[2]) && $item[2] === $menu_slug) {
-                    $menu_exists = true;
-                    break;
-                }
-            }
-        }
-        
-        // Ajouter le menu s'il n'existe pas
-        if (!$menu_exists) {
-            add_menu_page(
-                $menu_title,
-                $menu_title,
-                $capability,
-                $menu_slug,
-                '',
-                $icon,
-                $position
-            );
-        }
+            </style>";
+        }, 999);
     }
 }
 
 // Fonction d'aide pour obtenir l'instance
-function GoldWizard_Admin_Customizer() {
+function goldwizard_admin_customizer() {
     return GoldWizard_Admin_Customizer::instance();
 }

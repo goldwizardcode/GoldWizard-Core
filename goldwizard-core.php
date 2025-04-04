@@ -34,7 +34,7 @@ define('GOLDWIZARD_CORE_BASENAME', plugin_basename(__FILE__));
 // Constante pour activer/désactiver la personnalisation de l'admin
 // Mettre à false pour désactiver complètement la personnalisation de l'admin
 if (!defined('GOLDWIZARD_ENABLE_ADMIN_CUSTOMIZATION')) {
-    define('GOLDWIZARD_ENABLE_ADMIN_CUSTOMIZATION', false); // Désactivation complète de la personnalisation de l'admin
+    define('GOLDWIZARD_ENABLE_ADMIN_CUSTOMIZATION', true); // Activation de la personnalisation de l'admin
 }
 
 /**
@@ -129,52 +129,40 @@ class GoldWizard_Core {
         require_once GOLDWIZARD_CORE_PATH . 'includes/class-goldwizard-product-image.php';
         require_once GOLDWIZARD_CORE_PATH . 'includes/class-goldwizard-personnalisation.php';
         
-        // La classe de personnalisation de l'admin est désactivée
-        // require_once GOLDWIZARD_CORE_PATH . 'includes/class-goldwizard-admin-customizer.php';
+        // Inclure la classe de personnalisation de l'admin
+        require_once GOLDWIZARD_CORE_PATH . 'includes/class-goldwizard-admin-customizer.php';
+        
+        // Inclure le correctif pour l'accès aux extensions (version simplifiée)
+        require_once GOLDWIZARD_CORE_PATH . 'fix-plugin-access-simple.php';
     }
     
     /**
      * Initialiser les hooks
      */
     public function init_hooks() {
-        // Débogage
-        error_log('GoldWizard Core: Initialisation des hooks');
-        
         try {
             // Initialiser la réduction
-            error_log('GoldWizard Core: Initialisation de la réduction');
             $this->reduction = new GoldWizard_Reduction();
             
             // Initialiser la personnalisation
-            error_log('GoldWizard Core: Initialisation de la personnalisation');
             $this->personnalisation = GoldWizard_Personnalisation::instance();
             
-            // La personnalisation de l'admin est désactivée
-            /*
-            error_log('GoldWizard Core: Vérification de la personnalisation de l\'admin');
+            // Initialiser la personnalisation de l'admin
             if (class_exists('GoldWizard_Admin_Customizer') && GOLDWIZARD_ENABLE_ADMIN_CUSTOMIZATION) {
-                error_log('GoldWizard Core: Initialisation de la personnalisation de l\'admin');
-                // Utiliser la fonction d'aide pour obtenir l'instance
                 $this->admin_customizer = GoldWizard_Admin_Customizer();
             }
-            */
             
             // Initialiser l'image produit (en utilisant la méthode instance() car le constructeur est privé)
-            error_log('GoldWizard Core: Initialisation de l\'image produit');
             $this->product_image = GoldWizard_Product_Image::instance();
             
             // Ajouter les hooks
-            error_log('GoldWizard Core: Ajout des hooks');
             add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
             add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
             
-            // Les fonctions liées à la personnalisation de l'admin sont désactivées
-            // add_action('admin_init', array($this, 'restore_plugin_capabilities'), 1);
-            // add_action('admin_init', array($this, 'debug_admin_menus'), 1);
-            
-            error_log('GoldWizard Core: Initialisation terminée avec succès');
+            // Ajouter les hooks pour la personnalisation de l'admin
+            add_action('admin_init', array($this, 'restore_plugin_capabilities'), 1);
         } catch (Exception $e) {
-            error_log('GoldWizard Core ERROR: ' . $e->getMessage());
+            // error_log('GoldWizard Core ERROR: ' . $e->getMessage());
         }
     }
     
@@ -310,18 +298,38 @@ class GoldWizard_Core {
      * Enregistrer les scripts et styles pour l'admin
      */
     public function admin_enqueue_scripts($hook) {
-        // N'enregistrer les scripts que sur les pages d'édition de produit
-        if ($hook != 'post.php' && $hook != 'post-new.php') {
-            return;
+        // Enregistrer le style admin pour les pages d'édition de produit
+        if ($hook == 'post.php' || $hook == 'post-new.php') {
+            global $post;
+            if ($post && $post->post_type == 'product') {
+                wp_enqueue_style('goldwizard-admin', GOLDWIZARD_CORE_URL . 'assets/css/goldwizard-admin.css', array(), GOLDWIZARD_CORE_VERSION);
+            }
         }
         
-        global $post;
-        if (!$post || $post->post_type != 'product') {
-            return;
+        // Enregistrer le style de personnalisation de l'admin si activé
+        if (GOLDWIZARD_ENABLE_ADMIN_CUSTOMIZATION && class_exists('GoldWizard_Admin_Customizer')) {
+            wp_enqueue_style('goldwizard-admin-customizer', GOLDWIZARD_CORE_URL . 'assets/css/goldwizard-admin-customizer.css', array(), GOLDWIZARD_CORE_VERSION);
+            
+            // Récupérer la configuration de personnalisation
+            $admin_customizer = GoldWizard_Admin_Customizer();
+            $config = $admin_customizer->get_config();
+            
+            // Ajouter les variables CSS pour la personnalisation
+            $custom_css = "
+                :root {
+                    --goldwizard-primary-color: {$config['colors']['primary']};
+                    --goldwizard-secondary-color: {$config['colors']['secondary']};
+                    --goldwizard-accent-color: {$config['colors']['accent']};
+                    --goldwizard-hover-color: {$config['colors']['hover']};
+                    --goldwizard-text-color: {$config['colors']['text']};
+                    --goldwizard-logo-url: url('{$config['logo']['url']}');
+                    --goldwizard-logo-height: {$config['logo']['height']};
+                    --goldwizard-login-logo-height: {$config['logo']['login_height']};
+                }
+            ";
+            
+            wp_add_inline_style('goldwizard-admin-customizer', $custom_css);
         }
-        
-        // Enregistrer le style admin
-        wp_enqueue_style('goldwizard-admin', GOLDWIZARD_CORE_URL . 'assets/css/goldwizard-admin.css', array(), GOLDWIZARD_CORE_VERSION);
     }
     
     /**
@@ -352,106 +360,7 @@ class GoldWizard_Core {
      * Cette fonction est utile pour vérifier pourquoi les menus sont cachés
      */
     public function debug_admin_menus() {
-        // Vérifier si l'utilisateur est connecté et est un administrateur
-        if (!is_admin() || !current_user_can('administrator')) {
-            return;
-        }
-        
-        // Obtenir l'utilisateur actuel
-        $current_user = wp_get_current_user();
-        
-        // Ajouter des logs de débogage dans la console JavaScript
-        add_action('admin_footer', function() use ($current_user) {
-            ?>
-            <script>
-                console.log("======= DÉBOGAGE GOLDWIZARD =======");
-                console.log("Utilisateur actuel: <?php echo esc_js($current_user->user_login); ?>");
-                console.log("Email utilisateur: <?php echo esc_js($current_user->user_email); ?>");
-                console.log("Rôles: <?php echo esc_js(implode(', ', $current_user->roles)); ?>");
-                console.log("Capacités: ");
-                <?php 
-                foreach ($current_user->allcaps as $cap => $value) {
-                    if ($value) {
-                        echo 'console.log("  - ' . esc_js($cap) . '");';
-                    }
-                }
-                ?>
-                
-                // Vérifier les menus cachés
-                console.log("Menus visibles/cachés:");
-                setTimeout(function() {
-                    var menus = [
-                        { id: "#menu-plugins", nom: "Extensions" },
-                        { id: "#menu-tools", nom: "Outils" },
-                        { id: "#menu-settings", nom: "Réglages" },
-                        { id: "#menu-comments", nom: "Commentaires" },
-                        { id: "#toplevel_page_cfw-settings", nom: "CheckoutWC" },
-                        { id: "#toplevel_page_snippets", nom: "Snippets" },
-                        { id: "#toplevel_page_activity_log_page", nom: "Journal d'activité" }
-                    ];
-                    
-                    menus.forEach(function(menu) {
-                        var element = document.querySelector(menu.id);
-                        if (element) {
-                            var style = window.getComputedStyle(element);
-                            console.log("Menu " + menu.nom + ": " + (style.display !== "none" ? "VISIBLE" : "CACHÉ"));
-                        } else {
-                            console.log("Menu " + menu.nom + ": NON TROUVÉ");
-                        }
-                    });
-                    
-                    // Forcer l'affichage des menus
-                    console.log("Tentative de restauration des menus...");
-                    menus.forEach(function(menu) {
-                        var element = document.querySelector(menu.id);
-                        if (element) {
-                            element.style.display = "block";
-                            console.log("Menu " + menu.nom + " restauré via JavaScript");
-                        }
-                    });
-                }, 1000);
-            </script>
-            <?php
-        });
-        
-        // Ajouter un bouton de débogage dans l'interface d'administration
-        add_action('admin_notices', function() use ($current_user) {
-            ?>
-            <div class="notice notice-info">
-                <p>
-                    <strong>Débogage GoldWizard</strong><br>
-                    Utilisateur: <?php echo esc_html($current_user->user_login); ?><br>
-                    Email: <?php echo esc_html($current_user->user_email); ?><br>
-                    <button id="goldwizard-restore-menus" class="button button-primary">Restaurer les menus cachés</button>
-                </p>
-            </div>
-            <script>
-                document.getElementById('goldwizard-restore-menus').addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    var menus = [
-                        "#menu-plugins", 
-                        "#menu-tools", 
-                        "#menu-settings", 
-                        "#menu-comments", 
-                        "#toplevel_page_cfw-settings", 
-                        "#toplevel_page_snippets", 
-                        "#toplevel_page_activity_log_page"
-                    ];
-                    
-                    menus.forEach(function(menuId) {
-                        var element = document.querySelector(menuId);
-                        if (element) {
-                            element.style.display = "block";
-                            console.log("Menu " + menuId + " restauré manuellement");
-                        }
-                    });
-                    
-                    alert("Tentative de restauration des menus terminée. Vérifiez la console pour plus de détails.");
-                });
-            </script>
-            <?php
-        });
+        // Ne rien faire - Fonction désactivée pour éviter les messages de débogage
     }
 
     /**
